@@ -1,5 +1,4 @@
 #Simulation of autopull
-#http://users.iems.northwestern.edu/~nelsonb/IEMS435/PythonSim.pdf
 
 import random
 import sys
@@ -30,52 +29,81 @@ D = int(sys.argv[3])
 
 WEIGHT = 1000 * 4.44822#TODO weight of tractor
 VARIATION = 5 #TODO this is the amount that we thing the pressure will vary, (how much it could jump / time step)
+MAX_PRESSURE = 4000 #psi or some other value
 
 class Pull:
 	def __init__(self, P, I, D):
 		self.P = P
 		self.I = I
 		self.D = D
-		self.velocities = []
-		self.start_clock = count_time()
 
-	# def count_time:
-	# 	while not:
-	# 		i+=1
-	# 	else: sys.exit("You lost, if your pressure dropped and then it stopped you slid out")
-
-	def Distance(velocities, time):
+	def Distance(self, velocities, time):
 		avg_velocity = sum(velocities)/len(velocities)
 		return avg_velocity * time
 
-	def Net_Force(Load, Pressure):
+	def Net_Force(self, Load, Pressure):
 		#TODO calculate overall reduction
 		reduction = 0.69
 		pull = Pressure * reduction 
+
+		if net_force <= 0:
+			done = True
 
 		if not done:
 			return pull - Load
 		else: 
 			sys.exit("it is complete")
 
-	def Velocity(net_force, prev_net_force, prev_velocity):
+	def Velocity(self, net_force, prev_net_force, prev_velocity):
 		velocity = (prev_velocity * prev_net_force) / net_force #conservation of momentum
-		self.velocities[time] = velocity
+		velocities[time] = velocity
 		return velocity
 
-	def Load(Distance):
+	def Load(self, Distance):
 		return Distance * 10 # TODO rate of change in load / unit of measurement (meters)
 
-	def Pressure(Net_Force):
+	def Pressure(self, Net_Force):
 		pressure = Net_Force / 0.69 #TODO this is the inverse of the reduction 
 		return random.triangular(pressure - VARIATION, pressure + VARIATION, pressure) # (min, max, mode) prob distribution
 
-	def Displacement(Pressure):
-		return PID(self.P, self.I, self.D)
+	def Displacement(self, Pressure):
+		pid = PID(self.P, self.I, self.D)
+		control = pid(Pressure)
+		displacement = controlled_system.update(control)
+		return displacement #this needs to get converted to new pressure
+
+
 
 #pull = Pull(#TODO implement command line args)
+
 print("still needs implementing")
-print("arguments for P-I-D were " + str(sys.argv[1:]))
+print(P, I, D)
+
+pull = Pull(P,I,D)
+
+time = 0
+prev_velocity = 0
+distance = 0
+prev_net_force = 0
+net_force = 5000 #max pressure * loss and reduction (max force)
+done = False
+velocities = []
+while not done:
+	time +=1
+	velocity = pull.Velocity(net_force, prev_net_force, prev_velocity)
+	distance = pull.Distance(velocities, time)
+	print(distance)
+	if time >= 100:
+		break
+
+print("distance travelled is %d", distance)
+
+
+
+
+
+
+
 
 
 
