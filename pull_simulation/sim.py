@@ -1,7 +1,6 @@
 #Simulation of autopull
 #http://users.iems.northwestern.edu/~nelsonb/IEMS435/PythonSim.pdf
 
-import SimPy.Simulation as sim
 import random
 import sys
 from simple_pid import PID
@@ -25,9 +24,9 @@ print('MH3 Autopull PID learning simulation')
 # Load = function of (distance)
 # Pressure = function of (Load)
 # Displacement = function of (Pressure)
-P = sys.argv[0]
-I = sys.argv[1]
-D = sys.argv[2]
+P = int(sys.argv[1])
+I = int(sys.argv[2])
+D = int(sys.argv[3])
 
 WEIGHT = 1000 * 4.44822#TODO weight of tractor
 VARIATION = 5 #TODO this is the amount that we thing the pressure will vary, (how much it could jump / time step)
@@ -40,10 +39,10 @@ class Pull:
 		self.velocities = []
 		self.start_clock = count_time()
 
-	def count_time:
-		while not:
-			i+=1
-		else: sys.exit("You lost, if your pressure dropped and then it stopped you slid out")
+	# def count_time:
+	# 	while not:
+	# 		i+=1
+	# 	else: sys.exit("You lost, if your pressure dropped and then it stopped you slid out")
 
 	def Distance(velocities, time):
 		avg_velocity = sum(velocities)/len(velocities)
@@ -74,7 +73,9 @@ class Pull:
 	def Displacement(Pressure):
 		return PID(self.P, self.I, self.D)
 
-pull = Pull(#TODO implement command line args)
+#pull = Pull(#TODO implement command line args)
+print("still needs implementing")
+print("arguments for P-I-D were " + str(sys.argv[1:]))
 
 
 
