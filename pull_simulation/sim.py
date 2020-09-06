@@ -41,12 +41,12 @@ class Pull:
 		avg_velocity = sum(velocities)/len(velocities)
 		return avg_velocity * time
 
-	def Net_Force(self, Load, Pressure):
+	def Net_Force(self, Load, Pressure_in, done):
 		#TODO calculate overall reduction
 		reduction = 0.69
-		pull = Pressure * reduction 
+		pull = Pressure_in * reduction 
 
-		if net_force <= 0:
+		if pull <= 0:
 			done = True
 
 		if not done:
@@ -54,23 +54,25 @@ class Pull:
 		else: 
 			sys.exit("it is complete")
 
-	def Velocity(self, net_force, prev_net_force, prev_velocity):
+	def Velocity(self, net_force, prev_net_force, prev_velocity, time):
 		velocity = (prev_velocity * prev_net_force) / net_force #conservation of momentum
-		velocities[time] = velocity
+		print("velocity: " ,velocity)
+		velocities.append(velocity)
 		return velocity
 
 	def Load(self, Distance):
-		return Distance * 10 # TODO rate of change in load / unit of measurement (meters)
+		return (Distance * 10) + 1000 # TODO rate of change in load / unit of measurement (meters). 1000 represents inertia of sled on wheels
 
-	def Pressure(self, Net_Force):
+	def Measured_Pressure(self, Net_Force):
 		pressure = Net_Force / 0.69 #TODO this is the inverse of the reduction 
 		return random.triangular(pressure - VARIATION, pressure + VARIATION, pressure) # (min, max, mode) prob distribution
 
-	def Displacement(self, Pressure):
+	def Presure_in(self, Pressure): #controlled by displacement, equivalent of applied force
 		pid = PID(self.P, self.I, self.D)
 		control = pid(Pressure)
-		displacement = controlled_system.update(control)
-		return displacement #this needs to get converted to new pressure
+		#v = controlled_system.update(0)
+		#displacement = controlled_system.update(control)
+		return control #this needs to get converted to new pressure
 
 
 
@@ -82,21 +84,30 @@ print(P, I, D)
 pull = Pull(P,I,D)
 
 time = 0
-prev_velocity = 0
+prev_velocity = 1
 distance = 0
-prev_net_force = 0
-net_force = 5000 #max pressure * loss and reduction (max force)
+prev_net_force = 1
 done = False
+pressure_in = 4000
+Measured_Pressure = 3000
 velocities = []
 while not done:
-	time +=1
-	velocity = pull.Velocity(net_force, prev_net_force, prev_velocity)
+	load = pull.Load(distance)
+	print(load)
+	pressure_in = pull.Presure_in(Measured_Pressure)
+	print(pressure_in)
+	net_force = pull.Net_Force(pressure_in, load, done)
+	print(net_force)
+
+	velocity = pull.Velocity(net_force, prev_net_force, prev_velocity, time)
 	distance = pull.Distance(velocities, time)
+	Measured_Pressure = pull.Measured_Pressure(net_force)
 	print(distance)
+	time +=1
 	if time >= 100:
 		break
 
-print("distance travelled is %d", distance)
+print("distance travelled is ", distance)
 
 
 
