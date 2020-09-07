@@ -23,11 +23,13 @@ print('MH3 Autopull PID learning simulation')
 # Load = function of (distance)
 # Pressure = function of (Load)
 # Displacement = function of (Pressure)
+
 P = int(sys.argv[1])
 I = int(sys.argv[2])
 D = int(sys.argv[3])
 
 WEIGHT = 1000 * 4.44822#TODO weight of tractor
+MASS = WEIGHT / 9.8
 VARIATION = 5 #TODO this is the amount that we thing the pressure will vary, (how much it could jump / time step)
 MAX_PRESSURE = 4000 #psi or some other value
 
@@ -50,28 +52,30 @@ class Pull:
 			done = True
 
 		if not done:
-			return pull - Load
+			return pull - Load, done
 		else: 
 			sys.exit("it is complete")
 
-	def Velocity(self, net_force, prev_net_force, prev_velocity, time):
-		velocity = (prev_velocity * prev_net_force) / net_force #conservation of momentum
+	def Velocity(self, net_force, prev_velocity):
+		acceleration = net_force / MASS # mass is the mass of the tractor because mass of sled is accounted for in net_force
+		velocity = prev_velocity + (acceleration)
+		#velocity = (prev_velocity * prev_net_force) / net_force #conservation of momentum
 		print("velocity: " ,velocity)
 		velocities.append(velocity)
 		return velocity
 
 	def Load(self, Distance):
-		return (Distance * 10) + 1000 # TODO rate of change in load / unit of measurement (meters). 1000 represents inertia of sled on wheels
+		return (Distance * 10) + 100 # TODO rate of change in load / unit of measurement (meters). 1000 represents inertia of sled on wheels
 
 	def Measured_Pressure(self, Net_Force):
 		pressure = Net_Force / 0.69 #TODO this is the inverse of the reduction 
 		return random.triangular(pressure - VARIATION, pressure + VARIATION, pressure) # (min, max, mode) prob distribution
 
 	def Presure_in(self, Pressure): #controlled by displacement, equivalent of applied force
-		pid = PID(self.P, self.I, self.D)
+		pid = PID(self.P, self.I, self.D, setpoint = 4000, output_limits = (3900, 4000))
 		control = pid(Pressure)
-		#v = controlled_system.update(0)
-		#displacement = controlled_system.update(control)
+		print("control" ,control)
+		
 		return control #this needs to get converted to new pressure
 
 
@@ -84,7 +88,7 @@ print(P, I, D)
 pull = Pull(P,I,D)
 
 time = 0
-prev_velocity = 1
+prev_velocity = 0
 distance = 0
 prev_net_force = 1
 done = False
@@ -93,19 +97,22 @@ Measured_Pressure = 3000
 velocities = []
 while not done:
 	load = pull.Load(distance)
-	print(load)
+	print("load", load)
 	pressure_in = pull.Presure_in(Measured_Pressure)
-	print(pressure_in)
-	net_force = pull.Net_Force(pressure_in, load, done)
-	print(net_force)
+	print("applied pressure", pressure_in)
+	net_force, done = pull.Net_Force(load, pressure_in, done)
+	print("net_force", net_force)
 
-	velocity = pull.Velocity(net_force, prev_net_force, prev_velocity, time)
+	velocity = pull.Velocity(net_force, prev_velocity)
 	distance = pull.Distance(velocities, time)
 	Measured_Pressure = pull.Measured_Pressure(net_force)
-	print(distance)
+	print("distance",distance)
 	time +=1
-	if time >= 100:
-		break
+	if done:
+		sys.exit("it is complete")
+	# if time > 100 or done:
+	# 	sys.exit()
+	
 
 print("distance travelled is ", distance)
 
