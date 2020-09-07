@@ -37,6 +37,31 @@ REDUCTION = 1
 AREA = 1
 #PRINT = False
 
+def pressure_to_force(pressure_sensor_reading):
+	#TODO, this shoud return the inverse sum of all the frictional forces on the 4 tires. 
+	# You'll need to know the reduction of the tractor, and do a little physics. Try to incorporate
+	# some loss factors for different components like the motors.
+
+	#return net pull force
+	return 0
+
+def PID_iteration(Pull):
+	#TODO
+	#using the class "Pull", and copying the loop at the bottom, write a function that runs the simulation a bunch of 
+	#times to figure out the best P I D values.
+
+	# return P, I, D
+	return 0
+
+def pump_displacement(pressure_sensor_reading, desired_pressure):
+	#TODO
+	#write a function that maps displacement of the pump, to pressure in the lines. Basically, normalized to the 
+	#interval [0:1], map how much juice the pump needs to let through, to achieve a certain pressure, and how quickly this should be 
+	#done. Think PID
+
+	#return displacement fraction ( from 0:1)
+	return 0
+
 class Pull:
 	def __init__(self, P, I, D):
 		self.P = P
@@ -49,23 +74,25 @@ class Pull:
 			print("distance ", avg_velocity * time)
 		return avg_velocity * time
 
-	def Net_Force(self, Load, Pressure_in): # should be net work
+	def net_work(self, work_sled, Pressure_in): # should be net work
 		#TODO calculate overall reduction
-		pull = Pressure_in * REDUCTION * AREA 
+		#pressure_to_force() TODO
+		work_tractor = Pressure_in * REDUCTION * AREA 
 
-		net_force = pull - Load
+		net_work = work_tractor - work_sled # * 1 second
 
 		if PRINT:
-			print("net_force ", net_force)
+			print("net work ", net_work)
 
-		return net_force
+		return net_work
 
-	def Velocity(self, net_force, prev_velocity,done):
+	def Velocity(self, net_work, prev_velocity,done):
 		# Work_tractor - Work_sled = (1/2) * (mass_tractor)(Velocity^2 - prev_velocity^2)
-		if (2 * net_force / MASS + (prev_velocity**2)) <= 0:
+
+		if (2 * net_work / MASS + (prev_velocity**2)) <= 0:
 			return 0, True
 
-		velocity = np.sqrt(2 * net_force / MASS + (prev_velocity**2))
+		velocity = np.sqrt(2 * net_work / MASS + (prev_velocity**2))
 
 		if PRINT:
 			print("velocity", velocity)
@@ -75,11 +102,11 @@ class Pull:
 
 		return velocity, done
 
-	def Load(self, Distance): # Work of sled because * 1 second
+	def work_sled(self, Distance): # Work of sled because * 1 second
 		if PRINT:
-			print("load ", Distance * 10 +2000)
-		load = Distance * 10 +2000
-		return load # TODO rate of change in load / unit of measurement (meters). 1000 represents inertia of sled on wheels
+			print("work sled ", Distance * 50 + 1000)
+		work_sled = Distance * 10 +2000 # * 1 second
+		return work_sled # TODO rate of change in load / unit of measurement (meters). 1000 represents inertia of sled on wheels
 
 	def Measured_Pressure(self, Net_Force):
 		pressure = 3999 #TODO this is the inverse of the reduction 
@@ -104,25 +131,26 @@ done = False
 pressure_in = 4000
 Measured_Pressure = 3000
 velocities = []
-loads = []
-net_forces = []
-prev_net_force = 1000
+sled_works = []
+net_works = []
+distances = []
 
 while not done:
 	if PRINT:
 		print("step ***********************")
 	
 
-	load = pull.Load(distance)
-	loads.append(load)
+	work_sled = pull.work_sled(distance)
+	sled_works.append(work_sled)
 	pressure_in = pull.Presure_in(Measured_Pressure)
-	net_force= pull.Net_Force(load, pressure_in)
-	net_forces.append(net_force)
-	velocity, done = pull.Velocity(net_force, prev_velocity,done)
+	net_work = pull.net_work(work_sled, pressure_in)
+	net_works.append(net_work)
+	velocity, done = pull.Velocity(net_work, prev_velocity,done)
 	velocities.append(velocity)
 	distance = pull.Distance(velocities, time)
-	Measured_Pressure = pull.Measured_Pressure(net_force)
-	prev_net_force = net_force
+	distances.append(distance)
+	Measured_Pressure = pull.Measured_Pressure(net_work)
+	prev_net_work = net_work
 	prev_velocity = velocity
 	time += 1
 
@@ -135,15 +163,16 @@ while not done:
 if not PRINT:
 	print("distance travelled is ", distance, "time elapsed is ", time)
 	Time = list(range(time))
-	plt.plot(Time, loads)
+	plt.plot(Time, sled_works)
 	plt.ylabel('load')
 	plt.show()
-	plt.plot(Time, net_forces)
+	plt.plot(Time, net_works)
 	plt.ylabel('net_force')
 	plt.show()
 	plt.plot(Time, velocities)
 	plt.ylabel('velocity')
 	plt.show()
+	plt.plot(Time, distances)
 
 
 
