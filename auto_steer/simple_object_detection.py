@@ -85,8 +85,8 @@ else:
     rval = False
 while rval:
     rval, frame = vc.read()
-    rgb = Image.fromarray(frame)
-    rgb2 = np.float32(rgb)
+    # rgb = Image.fromarray(frame)
+    # rgb2 = np.float32(rgb)
     cascPath = "haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -99,8 +99,8 @@ while rval:
     		break
 
     for (x, y, w, h) in faces:
-    	cv2.rectangle(rgb2, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    cv2.imshow('image', rgb2)
+    	cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    cv2.imshow('image', frame)
     	
     	
 
