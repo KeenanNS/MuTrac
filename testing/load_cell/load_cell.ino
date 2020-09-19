@@ -1,10 +1,10 @@
 
 //wire colours correspond to load cell not soldered
-//with robotshop facing you, on the back quad, from left to right 
+//with robotshop facing you, on the back quad, from left to right
 //black, white, green, red
 #include <SD.h>
 #include <WheatstoneBridge.h>
-#include "strain_gauge_shield_and_lcd_support_functions.h"
+#include "shield.h"
 
 // Initial calibration values
 const int CST_STRAIN_IN_MIN = 365;       // Raw value calibration lower point
@@ -32,7 +32,7 @@ int loadcell = A1;
 void setup()
 {
  Serial.begin(9600);
- 
+
 
 // Force measurement & display
 }
@@ -41,7 +41,7 @@ void loop()
 {
     // Make a force measurement and obtain the calibrated force value
     strain_force = wsb.measureForce();
-    
+
     // Obtain the raw ADC value from the last measurement
     strain_adc = wsb.getLastForceRawADC();
 
@@ -56,12 +56,11 @@ int loads[1000] = {};
  // loads[i]=pounds;
   //i=i+1;
   if (pounds>10){
-    
+
     Serial.println(String(pounds) + " pounds!!");
     //break;}
-    
+
   }
-  
+
   delay(100);
   }
- 
