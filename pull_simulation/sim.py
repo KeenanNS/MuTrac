@@ -37,30 +37,6 @@ REDUCTION = 1
 AREA = 1
 #PRINT = False
 
-def pressure_to_force(pressure_sensor_reading):
-	#TODO, this shoud return the inverse sum of all the frictional forces on the 4 tires. 
-	# You'll need to know the reduction of the tractor, and do a little physics. Try to incorporate
-	# some loss factors for different components like the motors.
-
-	#return net pull force
-	return 0
-
-def PID_iteration(Pull):
-	#TODO
-	#using the class "Pull", and copying the loop at the bottom, write a function that runs the simulation a bunch of 
-	#times to figure out the best P I D values.
-
-	# return P, I, D
-	return 0
-
-def pump_displacement(pressure_sensor_reading, desired_pressure):
-	#TODO
-	#write a function that maps displacement of the pump, to pressure in the lines. Basically, normalized to the 
-	#interval [0:1], map how much juice the pump needs to let through, to achieve a certain pressure, and how quickly this should be 
-	#done. Think PID
-
-	#return displacement fraction ( from 0:1)
-	return 0
 
 class Pull:
 	def __init__(self, P, I, D):
