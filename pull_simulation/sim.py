@@ -62,6 +62,9 @@ def pump_displacement(pressure_sensor_reading, desired_pressure):
 	#return displacement fraction ( from 0:1)
 	return 0
 
+class power_pull:
+
+
 class Pull:
 	def __init__(self, P, I, D):
 		self.P = P
@@ -87,7 +90,10 @@ class Pull:
 		return net_work
 
 	def Velocity(self, net_work, prev_velocity,done):
-		# Work_tractor - Work_sled = (1/2) * (mass_tractor)(Velocity^2 - prev_velocity^2)
+		# we have net work over 1 timestep. so net work is equal to power in this case. power is force * velocity.
+		# the force is going to be related to the momentum of the system I think.
+
+		# F * v  = F * v
 
 		if (2 * net_work / MASS + (prev_velocity**2)) <= 0:
 			return 0, True
@@ -102,10 +108,11 @@ class Pull:
 
 		return velocity, done
 
-	def work_sled(self, Distance): # Work of sled because * 1 second
+	def work_sled(self, Distance, Last_distance): # Work of sled because * 1 second
 		if PRINT:
 			print("work sled ", Distance * 50 + 1000)
-		work_sled = Distance * 10 +2000 # * 1 second
+		delta = Distance - Last_distance
+		work_sled = (Distance * 10 +2000 )* delta# * 1 second
 		return work_sled # TODO rate of change in load / unit of measurement (meters). 1000 represents inertia of sled on wheels
 
 	def Measured_Pressure(self, Net_Force):
@@ -114,18 +121,20 @@ class Pull:
 			print("pressure ", pressure)
 		return random.triangular(pressure - VARIATION, pressure + VARIATION, pressure) # (min, max, mode) prob distribution
 
-	def Presure_in(self, Pressure): #controlled by displacement, equivalent of applied force
+	def work_shaft(self, Pressure): #controlled by displacement, equivalent of applied force
 		pid = PID(self.P, self.I, self.D, setpoint = 4000, output_limits = (3900, 4000))
 		control = pid(Pressure)
 		if PRINT:
 			print ("control ", control)
-		
+		flow_rate = 3400 / 12 * 19.9
+		work = control * flow_rate
 		return control #this needs to get converted to new pressure it should be force before reduction
 
 pull = Pull(P,I,D)
 
 time = 0
 prev_velocity = 0
+Last_distance = 0
 distance = 0
 done = False
 pressure_in = 4000
@@ -148,6 +157,7 @@ while not done:
 	velocity, done = pull.Velocity(net_work, prev_velocity,done)
 	velocities.append(velocity)
 	distance = pull.Distance(velocities, time)
+	Last_distance = distance
 	distances.append(distance)
 	Measured_Pressure = pull.Measured_Pressure(net_work)
 	prev_net_work = net_work
