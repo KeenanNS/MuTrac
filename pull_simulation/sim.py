@@ -73,11 +73,14 @@ class Pull:
 		self.max_flow = self.flowrate * 3400 / 60
 		self.max = 18
 		self.weight = 7700
+		self.Msled = 11120
 
-	def work_sled(self, distance, tot_distance):
+	def work_sled(self, distance, tot_distance, last_velocity):
 		print("distance ",distance)
-		# add momentum to the picture
-		sled_load = tot_distance * 100 + 1000
+		#M * V = m * V
+		momentum_force = self.Msled * last_velocity / 1 #second
+		friction = tot_distance * 100  + 200
+		sled_load = friction - momentum_force
 		print("sled load ", sled_load)
 		return sled_load * distance, sled_load
 
@@ -180,7 +183,7 @@ while not done:
 	tot_distance = pull.tot_distance(velocities, time, displacements)
 	distance = tot_distance - last_distance
 	pump_factor = pull.pump_factor(pull.get_max_power(pump_factor), last_pressure)
-	work_sled, sled_load = pull.work_sled(distance, tot_distance)
+	work_sled, sled_load = pull.work_sled(distance, tot_distance, last_velocity)
 	pressure, done = pull.pressure(sled_load, done)
 	# rpm = pull.get_rpms(pull.get_max_power(pump_factor),get_requested_power(flow * pressure))
 	
