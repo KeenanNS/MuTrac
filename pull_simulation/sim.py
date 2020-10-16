@@ -8,14 +8,7 @@ import matplotlib.pyplot as plt
 
 print('MH3 Autopull PID learning simulation')
 
-# our input is displacement. d = f(pressure) where the function is some PID control
 
-#pressure is a function of the load on the wheels. We can say that the load on the wheels is going to be 
-#a function of weight of the sled which is a function of distance. and that this load will have some noise.
-#so the function load = f(distance) will give us a mean, and we can sample some probability distribution from that
-
-#distance is a function of velocity and time. Velocity is a function of net force and time.
-#so all of our functions add up to 
 
 # Distance = function of (velocity and time)
 # Velocity = function of (net force and time)
