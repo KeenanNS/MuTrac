@@ -45,16 +45,18 @@ class Pull:
 		self.max_flow = self.flowrate * 3400 / 60
 		self.max = 18
 		self.weight = 7700
-		self.Msled = 11120
+		self.Msled = 1120
+		self.Pslip = 13790000
 
-	def work_sled(self, distance, tot_distance, last_velocity):
+	def load_sled(self, last_velocity):
 		print("distance ",distance)
 		#M * V = m * V
-		momentum_force = self.Msled * last_velocity / 1 #second
-		friction = tot_distance * 100  + 200
+		momentum_force = 0.01 * self.Msled * last_velocity / 1 #second
+		print("momentum ",momentum_force)
+		friction = tot_distance * 100  + 4000
 		sled_load = friction - momentum_force
 		print("sled load ", sled_load)
-		return sled_load * distance, sled_load
+		return sled_load
 
 	def work_tractor(self, pressure, pump_factor, rpm):
 		rps = rpm / 60
@@ -99,7 +101,10 @@ class Pull:
 		return net_work
 
 	# def velocity(self, last_velocity, net_work, distance, done, displacement):
-	def velocity(self, displacement, done):
+	def velocity(self, displacement, pressure, done):
+		if pressure > self.Pslip:
+			done = True
+
 
 		# net_force = net_work / (distance +1)
 		# acceleration = net_force / self.weight
@@ -118,8 +123,7 @@ class Pull:
 		except:
 			avg = 0
 		# return avg * time
-		print("tot_distance ", tot_distance)
-		return sum(displacements) * 6740
+		return avg
 
 		#this could just as easily be (sum(velocities)) but this is easier to follow
 
@@ -155,7 +159,7 @@ while not done:
 	tot_distance = pull.tot_distance(velocities, time, displacements)
 	distance = tot_distance - last_distance
 	pump_factor = pull.pump_factor(pull.get_max_power(pump_factor), last_pressure)
-	work_sled, sled_load = pull.work_sled(distance, tot_distance, last_velocity)
+	sled_load = pull.load_sled(last_velocity)
 	pressure, done = pull.pressure(sled_load, done)
 	# rpm = pull.get_rpms(pull.get_max_power(pump_factor),get_requested_power(flow * pressure))
 	
@@ -167,7 +171,7 @@ while not done:
 	
 	print(type(displacement))
 	# velocity, done = pull.velocity(last_velocity, net_work, distance, done, displacement)
-	velocity, done = pull.velocity(displacement, done)
+	velocity, done = pull.velocity(displacement, pressure, done)
 	velocities.append(velocity)
 	time += 1
 	last_velocity = velocity
