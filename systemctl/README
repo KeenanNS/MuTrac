@@ -1,7 +1,7 @@
 To have our main loop run, you need to put the main.service file in the right directory.
 if you're in this directory on your pi, you can run this:
 
-sudo cp main.service /lib/systemct/system/main.service
+sudo cp main.service /etc/systemd/system/main.service
 
 Then you need to refresh it
 

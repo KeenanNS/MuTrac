@@ -1,0 +1,14 @@
+[Unit]
+Description=run MuTrac main loop
+
+[Service]
+Type=simple
+ExecStart=/home/pi/MuTrac/boot/main
+StandardOutput=file:/home/pi/MuTrac/boot/boot.log
+WorkingDirectory=/home/pi/MuTrac/boot
+Restart=always
+user=pi
+
+[Install]
+WantedBy=multi-user.target
+
