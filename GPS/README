@@ -1,0 +1,30 @@
+Author: Keenan
+
+To get any of this working you must do a couple things. 
+
+ls /dev/tty*
+
+unplug the module, and run the command again, see which dev changed. THis is your usb port.
+for me it is /dev/ttyACM0.
+
+you want to end the systemd process for this. 
+
+sudo systemctl stop gpsmd
+
+you need to edit the configuration file of the service to look for the gps data on a more broad ip.
+
+edit /lib/systemd/system/gpsd.socket field "listenstream" to be 0.0.0.2947
+
+then kill any process
+
+sudo killall gpsd
+
+then 
+
+sudo gpsd /dev/ttyACM0 -F /var/run/gpsd.socket  !remember this device may be different for you
+
+try running the command gpsmon
+
+if this shows you nice things, you are good to go. You can write some programs in C or python to interface with the module. You can get raw data from the GPS just by sude cat /dev/ttyACM0 as well
+
+ 
