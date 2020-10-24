@@ -5,7 +5,7 @@
 #include <math.h>
 #include <errno.h>
 
-int main(void) {
+int main() {
 struct timeval tv;
 struct gps_data_t gps_data;
 
@@ -19,7 +19,7 @@ while (1) {
     /* wait for 2 seconds to receive data */
     if (gps_waiting (&gps_data, 2000000)) {
         /* read data */
-        if (gps_read(&gps_data) == -1) {
+        if ((gps_read(&gps_data,NULL,0)) == -1) {
             printf("error occured reading gps data. code: %d, reason: %s\n", errno, gps_errstr(errno));
         } else {
             /* Display data from the GPS receiver. */
@@ -36,8 +36,11 @@ while (1) {
     }
 
     sleep(3);
-gps_stream(&gps_data, WATCH_DISABLE, NULL);
-gps_close (&gps_data);
-return 0;
 }
 
+/* When you are done... */
+gps_stream(&gps_data, WATCH_DISABLE, NULL);
+gps_close (&gps_data);
+
+return EXIT_SUCCESS;
+}
