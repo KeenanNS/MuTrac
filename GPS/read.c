@@ -1,3 +1,4 @@
+
 #include <gps.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,35 +6,29 @@
 #include <math.h>
 #include <errno.h>
 
-int main(void) {
+int main() {
 struct timeval tv;
 struct gps_data_t gps_data;
-char str[50];
-
-FILE *fp = fopen("gps_data.txt", "w");
-if (fp == NULL){
-printf("couldn't open file for GPS data");
-return EXIT_FAILURE;
+FILE * fp = fopen("gps_data.txt","w+");
+if (!fp){
+	printf("bad file open");
+	fclose(fp);
+	return EXIT_FAILURE;
 }
 
 if ((gps_open("localhost", "2947", &gps_data)) == -1) {
-//fflush(stdout);
-    sprintf(str, "code: %d, reason: %s\n", errno, gps_errstr(errno));
-    printf(str);
-fwrite(str, 1, sizeof(str), fp);
-    fclose(fp);
+    printf("code: %d, reason: %s\n", errno, gps_errstr(errno));
     return EXIT_FAILURE;
 }
 gps_stream(&gps_data, WATCH_ENABLE | WATCH_JSON, NULL);
 
 while (1) {
+	FILE * fp = fopen("gps_data.txt","w+");
     /* wait for 2 seconds to receive data */
     if (gps_waiting (&gps_data, 2000000)) {
         /* read data */
-        if ((gps_read(&gps_data)) == -1) {
-		//fflush(stdout);
-	    sprintf(str, "error occured reading gps data. code: %d, reason: %s\n", errno, gps_errstr(errno));
-            fwrite(str, 1, sizeof(str), fp);
+        if ((gps_read(&gps_data,NULL,0)) == -1) {
+            printf("error occured reading gps data. code: %d, reason: %s\n", errno, gps_errstr(errno));
         } else {
             /* Display data from the GPS receiver. */
             if ((gps_data.status == STATUS_FIX) && 
@@ -41,18 +36,13 @@ while (1) {
                 !isnan(gps_data.fix.latitude) && 
                 !isnan(gps_data.fix.longitude)) {
                     //gettimeofday(&tv, NULL); EDIT: tv.tv_sec isn't actually the timestamp!
-		//fflush(stdout);
-printf(str);	        
-sprintf(str, "%f,%f,%f,%lf", gps_data.fix.latitude, gps_data.fix.longitude, gps_data.fix.speed, gps_data.fix.time); 
-		fwrite(str, 1, sizeof(str), fp);
+                    fprintf(fp,"%f,%f,%f\n", gps_data.fix.latitude, gps_data.fix.longitude, gps_data.fix.speed); //EDIT: Replaced tv.tv_sec with gps_data.fix.time
             } else {
-		//fflush(stdout);
-printf(str);		
-sprintf(str,"No GPS data available");
-                fwrite(str,1,sizeof(str), fp);
+                printf("no GPS data available\n");
             }
         }
     }
+    fclose(fp);
 
     sleep(1);
 }
@@ -63,3 +53,4 @@ gps_close (&gps_data);
 
 return EXIT_SUCCESS;
 }
+
