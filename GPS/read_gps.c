@@ -9,7 +9,7 @@
 int main() {
 struct timeval tv;
 struct gps_data_t gps_data;
-FILE * fp = fopen("gps_data.txt","w+");
+FILE * fp = fopen("/home/pi/MuTrac/GPS/gps_data.txt","w+");
 if (!fp){
 	printf("bad file open");
 	fclose(fp);
@@ -23,11 +23,11 @@ if ((gps_open("localhost", "2947", &gps_data)) == -1) {
 gps_stream(&gps_data, WATCH_ENABLE | WATCH_JSON, NULL);
 
 while (1) {
-	FILE * fp = fopen("gps_data.txt","w+");
+	FILE * fp = fopen("/home/pi/MuTrac/GPS/gps_data.txt","w+");
     /* wait for 2 seconds to receive data */
     if (gps_waiting (&gps_data, 2000000)) {
         /* read data */
-        if ((gps_read(&gps_data,NULL,0)) == -1) {
+        if ((gps_read(&gps_data)) == -1) {
             printf("error occured reading gps data. code: %d, reason: %s\n", errno, gps_errstr(errno));
         } else {
             /* Display data from the GPS receiver. */
