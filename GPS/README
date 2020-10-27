@@ -1,4 +1,5 @@
-Author: Keenan
+The main read function of the GPS, reads the values of lat, lon and velocity, and stores them in a file called gps_data with delimiter = ','. You can grab these values from this file at any time and they will
+be up to date. The file is overwritten 2 times a second.
 
 To get any of this working you must do a couple things. 
 
