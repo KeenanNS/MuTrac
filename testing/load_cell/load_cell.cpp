@@ -29,38 +29,28 @@ int i;
 WheatstoneBridge wsb(A1, CST_STRAIN_IN_MIN, CST_STRAIN_IN_MAX, CST_STRAIN_OUT_MIN, CST_STRAIN_OUT_MAX);
 
 int loadcell = A1;
+int dummy_pin = A2;
+int dummy_drop;
 void setup()
 {
  Serial.begin(9600);
-
-
 // Force measurement & display
 }
 // < Main code >
 void loop()
 {
-    // Make a force measurement and obtain the calibrated force value
-    strain_force = wsb.measureForce();
+// Make a force measurement and obtain the calibrated force value
+// Obtain the raw ADC value from the last measurement
+load = analogRead(loadcell);
+dummy_drop = analogRead(dummy_pin);
 
-    // Obtain the raw ADC value from the last measurement
-    strain_adc = wsb.getLastForceRawADC();
+// calibration primitive equation
+load = load - dummy_drop;
+pounds = ((369 - load) * 6.7); 
 
-    load = analogRead(loadcell);
-
-    // calibration primitive equation
-   pounds = ((369 - load) * 6.7);
+//determined by hanging weights on the cell to make y = mx + b
 //Serial.println(strain_force);
-int loads[1000] = {};
-//while(pounds>10){
- // i=0;
- // loads[i]=pounds;
-  //i=i+1;
-  if (pounds>10){
+delay(100);
 
-    Serial.println(String(pounds) + " pounds!!");
-    //break;}
-
-  }
-
-  delay(100);
-  }
+//then there was code here to store on an SD module and process more later.
+}
