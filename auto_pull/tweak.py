@@ -36,3 +36,11 @@ for i,row in data.iterrows():
 
 plt.scatter(press, arr)
 plt.show()
+
+
+def func (X, w1, w2, w3, m, b):
+		w1, w2, w3 = abs(w1), abs(w2), abs(w3)
+		x = np.dot(np.asarray([w1,w2,w3] / sum([w1,w2,w3])),np.asarray(X))
+		return m * x + b
+
+pars, cov = curve_fit(f=func, xdata=x, ydata=y)
