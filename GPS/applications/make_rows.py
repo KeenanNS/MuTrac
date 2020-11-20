@@ -100,28 +100,28 @@ class field:
 		return np.asarray(Xs)
 
 
-class pathfinder(field):
-	def __init__(self, nodes, current_loc, velocity, last_node, first_call):
-		self.placeholder = 0
-		self.current_loc = utm.from_latlon(current_loc[i][0], current_loc[i][1])
-		self.current_loc[:,0] = self.current_loc[:,0] - self.min_x
-		self.current_loc[:,1] = self.current_loc[:,1] - self.min_y
-		self.points = nodes
-		self.velocity = velocity
-		self.starting = True
-		self.first_call = first_call
-		self.current_index = 0
-		self.target = nodes[0]
-	def get_get_to_first_node(self):
-		self.last_node = self.current_loc
-	def get_new_target(self):
-		distance_from_node = np.sqrt((self.target[0] - self.current_loc[0])**2 + (self.target[1] - self.current_loc[1])**2)
-		if distance_from_node < 3 :
-			self.target = self.nodes[self.current_index + 1]
+# class pathfinder(field):
+# 	def __init__(self, nodes, current_loc, velocity, last_node, first_call):
+# 		self.placeholder = 0
+# 		self.current_loc = utm.from_latlon(current_loc[i][0], current_loc[i][1])
+# 		self.current_loc[:,0] = self.current_loc[:,0] - self.min_x
+# 		self.current_loc[:,1] = self.current_loc[:,1] - self.min_y
+# 		self.points = nodes
+# 		self.velocity = velocity
+# 		self.starting = True
+# 		self.first_call = first_call
+# 		self.current_index = 0
+# 		self.target = nodes[0]
+# 	def get_get_to_first_node(self):
+# 		self.last_node = self.current_loc
+# 	def get_new_target(self):
+# 		distance_from_node = np.sqrt((self.target[0] - self.current_loc[0])**2 + (self.target[1] - self.current_loc[1])**2)
+# 		if distance_from_node < 3 :
+# 			self.target = self.nodes[self.current_index + 1]
 			
 
 
-	def which_nodes(self):
+# 	def which_nodes(self):
 
 
 
