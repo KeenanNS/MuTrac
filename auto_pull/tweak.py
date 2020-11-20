@@ -20,27 +20,31 @@ del data['0,2 - CP_last_pwm']
 x = 10000
 arr = []
 press = []
-for i,row in data.iterrows():
-	pressure = int(row['pressure'])
-	command1 = str(row['pressure'])# + ' ' + str(row['rpms']) #{}'.format(row['pressure'], row['rpms'])
-	command2 = str(row['rpms'])
-	command3 = str(x)
-	command = './pull {} {} {}'.format(command3, command1, command2)
-	command = command.split()
-	#print(command)
-	#os.system('./pull {} {} {}'.format(command3, command1, command2))
-	x = subprocess.check_output(command, stderr=subprocess.STDOUT).decode('utf-8')
-	#print(x.decode("utf-8"))
-	arr.append(int(x))
-	press.append(pressure)
+def episode(tweak, tweak2):
+	for i,row in data.iterrows():
+		pressure = int(row['pressure'])
+		rpm = int(row['rpms'])
 
+		command1 = str(row['pressure'])# + ' ' + str(row['rpms']) #{}'.format(row['pressure'], row['rpms'])
+		command2 = str(row['rpms'])
+		command3 = str(x)
+		command = './pull {} {} {} {} {}'.format(command3, command1, command2, tweak, tweak2)
+		command = command.split()
+		#print(command)
+		#os.system('./pull {} {} {}'.format(command3, command1, command2))
+		x = subprocess.check_output(command, stderr=subprocess.STDOUT).decode('utf-8')
+		#print(x.decode("utf-8"))
+		arr.append(int(x))
+		press.append(pressure)
+		powers.append(pressure * rpm/60 * x / 10000 * 0.0003/11.7)
+		return sum(powers)/len(powers)
+		# TODO extract average power and return it. ( you have pressure, pwm and rpm)
 plt.scatter(press, arr)
 plt.show()
 
 
-def func (X, w1, w2, w3, m, b):
-		w1, w2, w3 = abs(w1), abs(w2), abs(w3)
-		x = np.dot(np.asarray([w1,w2,w3] / sum([w1,w2,w3])),np.asarray(X))
-		return m * x + b
+def func (tweak, tweak2):
+	power = episode(tweak, tweak2)
+	return power
 
 pars, cov = curve_fit(f=func, xdata=x, ydata=y)
