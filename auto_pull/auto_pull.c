@@ -12,12 +12,12 @@ GUIDE version: 12.1.7.1470
 #include<stdlib.h>
 /* USER code section begin */
 
-int do_shit(double theta, double pressure, double rpm, double tweak, double tweak2){
+int do_shit(double theta, double pressure, double rpm){//, double tweak, double tweak2){
   double max_power = 61591 - 49681800 / theta - 4866 * log(theta);
   //printf("maxpower1 : %f\n", max_power);
-  max_power = max_power * (4.86 - 2184 / rpm - 0.432 * log(rpm));
+  max_power = max_power * (4.86 - 2184 / rpm - 0.440 * log(rpm));
   //printf("maxpower2 : %f\n", max_power);
-  max_power = max_power * tweak; 
+  max_power = max_power; // * tweak; 
 
   int wanted = (int)((max_power * 22222222222) / (pressure * rpm));
   if (wanted < 3000){
@@ -34,9 +34,9 @@ int main(int argc, char * argv[]){
   double pressure = strtod(argv[1], &dummy);
   double rpm = strtod(argv[2], &dummy);
   double pwm = strtod(argv[3], &dummy);
-  double tweak = strtod(argv[4], &dummy);
-  double tweak2 = strtod(argv[5], &dummy);
-  int ret = do_shit(pressure, rpm, pwm, tweak, tweak2); 
+  //double tweak = strtod(argv[4], &dummy);
+ // double tweak2 = strtod(argv[5], &dummy);
+  int ret = do_shit(pressure, rpm, pwm);//, tweak, tweak2); 
   printf("%d\n", ret);
 
 }

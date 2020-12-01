@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import subprocess
 import matplotlib.pyplot as plt
+import scipy
 data = pd.read_csv("goodgood.csv",sep=';') 
 # Preview the first 5 lines of the loaded data 
 data = data.iloc[200:775]
@@ -17,10 +18,11 @@ del data['0,2 - CP_rpms']
 del data['0,2 - CP_output_pwm']
 del data['0,2 - CP_last_pwm']
 
-x = 10000
-arr = []
-press = []
-def episode(tweak, tweak2):
+
+def episode():#tweak, tweak2):
+	x = 10000
+	arr = []
+	press = []
 	for i,row in data.iterrows():
 		pressure = int(row['pressure'])
 		rpm = int(row['rpms'])
@@ -28,7 +30,7 @@ def episode(tweak, tweak2):
 		command1 = str(row['pressure'])# + ' ' + str(row['rpms']) #{}'.format(row['pressure'], row['rpms'])
 		command2 = str(row['rpms'])
 		command3 = str(x)
-		command = './pull {} {} {} {} {}'.format(command3, command1, command2, tweak, tweak2)
+		command = './pull {} {} {}'.format(command3, command1, command2)#, tweak, tweak2)
 		command = command.split()
 		#print(command)
 		#os.system('./pull {} {} {}'.format(command3, command1, command2))
@@ -36,15 +38,20 @@ def episode(tweak, tweak2):
 		#print(x.decode("utf-8"))
 		arr.append(int(x))
 		press.append(pressure)
-		powers.append(pressure * rpm/60 * x / 10000 * 0.0003/11.7)
-		return sum(powers)/len(powers)
+		#powers.append(pressure * rpm/60 * x / 10000 * 0.0003/11.7)
+		#return sum(powers)/len(powers)
 		# TODO extract average power and return it. ( you have pressure, pwm and rpm)
-plt.scatter(press, arr)
-plt.show()
+	return press, arr
 
 
-def func (tweak, tweak2):
+
+def func (X, tweak, tweak2):
 	power = episode(tweak, tweak2)
-	return power
+	return 1 / power
 
-pars, cov = curve_fit(f=func, xdata=x, ydata=y)
+#pars  = scipy.optimize.minimize(func, [1,1])
+press, arr = episode()
+plt.scatter(press, arr)
+plt.xlabel('Pressure in Pa')
+plt.ylabel('PWM (0:10000, mapped to 12V)')
+plt.show()

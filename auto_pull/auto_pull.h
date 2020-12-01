@@ -10,7 +10,7 @@ GUIDE version: 12.1.7.1470
 
 /* USER code section begin */
 
-int do_shit(double theta, double pressure, double rpm, float tweak, float tweak2); 
+int do_shit(double theta, double pressure, double rpm);//, float tweak, float tweak2); 
 
 
 
