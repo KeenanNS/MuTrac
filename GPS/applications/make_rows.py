@@ -3,7 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 import utm
 
-class field:
+class field():
 	def __init__(self, coordinate_array, theta, num_rows):
 		self.coords = coordinate_array
 		self.theta = theta
@@ -97,10 +97,39 @@ class field:
 			Xs = np.concatenate((Xs, [increment *i]))
 		return np.asarray(Xs)
 
+	def gradient(self):
+		from skspatial.objects import Plane
+		from skspatial.objects import Points
+		from skspatial.plotting import plot_3d
+		# do fit
+		tmp_A = []
+		tmp_b = []
+		for i in range(len(self.coords)):
+		    tmp_A.append([self.coords[i, 0], self.coords[i, 1], 1])
+		    tmp_b.append(self.coords[i, 2])
+		b = np.matrix(tmp_b).T
+		A = np.matrix(tmp_A)
 
-coordinates = np.loadtxt('Track_example.txt', delimiter = '\t')
+		# Manual solution
+		fit = (A.T * A).I * A.T * b
+		print(fit)
+		angle = np.arctan(fit[0]/fit[1])
+		print(np.degrees(angle))
+		errors = b - A * fit
+		residual = np.linalg.norm(errors)
+		points = Points(self.coords)
+
+		plane_fit = Plane.best_fit(points)
+		print(plane_fit)
+		print(np.degrees(np.arctan(plane_fit.vector[0]/plane_fit.vector[1])))
+		
+
+coordinates = np.loadtxt('F22_Elevation.txt', delimiter = '\t', skiprows=1, usecols=(0,1,3))
+print(coordinates)
 #coordinates = np.array([[50.854457, 4.377184],[52.518172,13.407759],[50.072651,14.435935],[48.853033,2.349553]])
-field = field(coordinates,np.radians(23),90)
+field = field(coordinates,np.radians(0),5)
+field.gradient()
+exit()
 #field = field(coordinates,0,7)
 min_x = field.to_xy()
 plt.plot(field.coords[:,0], field.coords[:,1])
